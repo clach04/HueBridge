@@ -10,6 +10,13 @@ An easy-to-use, MicroPython-compatible class to access and control lights on a P
 * Works equally well in micropython or python 2.7 and up
 * Easy to extend with new methods to access more bridge functionality
 
+## Installation
+For micropython, there are no requirements.
+
+For CPython, `requests` needs to be installed, issue:
+
+    pip install requests
+
 ## Usage
 The first time the `Bridge` class is used, it will discovery the bridge and then initiate the necessary API username registration. 
 ```
