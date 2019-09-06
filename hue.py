@@ -68,21 +68,37 @@ class Bridge:
         s.sendto(HEADER, ('239.255.255.250',1900))    #UPnP Multicast
         s.settimeout(3)
 
+        hue_url = None
         IP = None
         while IP == None:
             data, addr = s.recvfrom(1024)
             self.show(str(data),2)
+            # TODO
+            # if b'hue-bridgeid' in data
             lines = data.split(b'\r\n')
             for l in lines:
                 tokens = l.split(b' ')
+                if tokens[0] == b'LOCATION:':
+                    # this is the actual server URL
+                        print('DEBUG %r'% (tokens,))
+                        print('DEBUG %r'% (tokens[1].split(b'/'),))
+                        hue_url = tokens[1].split(b'/')[2]
+                        print('DEBUG %r'% (hue_url,))
+                        hue_url = hue_url.decode('utf8')
+                        print('DEBUG %r'% (hue_url,))
                 if tokens[0] == b'SERVER:':
                     product = tokens[3].split(b'/')
                     if product[0] == b'IpBridge':
+                        print('DEBUG %r'% (addr,))  # simply the socket peer info, so not the hue port - only IP
+                        print('DEBUG %r'% (data,))
+                        print('DEBUG %r'% (hue_url,))
                         IP = str(addr[0])
                         break
 
         s.close()
         self.IP = IP
+        if hue_url:
+            self.IP = hue_url
         return IP
 
 
@@ -153,8 +169,12 @@ class Bridge:
     def get(self, path):
         """Perform GET request and return json result."""
         url = self.url(path)
+        print('DEBUG %r'% (url,))
         self.show(url,2)
-        resp = requests.get(url).json()
+        #resp = requests.get(url).json()
+        resp = requests.get(url)
+        print('DEBUG %r'% (resp,))
+        resp = resp.json()
         self.show(resp,2)
         return resp
 
